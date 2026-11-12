@@ -1,2 +1,10 @@
+# Python
 .venv/
 **/__pycache__/
+.uv/
+*.pyc
+*.pyo
+
+# Jupyter
+iframe_figures/
+.ipynb_checkpoints/
