@@ -1,0 +1,14 @@
+[project]
+name = "fastapi-pydantic-intro-2026"
+version = "0.1.0"
+description = "Small demo app for a short introduction to FastAPI and Pydantic. (MelbPy, Nov 2026)."
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+  "airium>=0.3.2",
+  "fastapi[all]>=0.162.5",
+  "jupyter>=1.1.1",
+  "locust>=2.47.0",
+  "plotly[express]>=7.1.0",
+  "polars>=2.1.0",
+]
