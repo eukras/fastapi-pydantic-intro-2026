@@ -4,24 +4,13 @@ from enum import Enum
 from typing import Annotated
 
 from airium import Airium
-from fastapi import Depends, FastAPI, Header, HTTPException, Request
+from fastapi import Cookie, Depends, FastAPI, Header, HTTPException, Request, Security
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from data import yield_csv_rows
-
-# ---------------------------------------------------------------------------
-# Talk outline:
-#
-# - Data + Jupyter overview
-# - Simple FastAPI application: Homepage and /postcodes
-# - Swagger-UI: /docs and models
-# - Pydantic: Contracts for data in and out
-# - Dependency Injection
-# - Asynchronous functions
-# ---------------------------------------------------------------------------
 
 # ---------------------------------------------------------------------------
 # Data
@@ -103,6 +92,7 @@ class StateEnum(str, Enum):
     tas = "TAS"
     vic = "VIC"
     wa = "WA"
+    ot = "OT"  # <-- Offshore Territories
 
 
 class PostcodeModel(BaseModel):
@@ -111,7 +101,7 @@ class PostcodeModel(BaseModel):
     state: StateEnum
     postcode: int = Field(ge=1, le=9999)
     count: int
-    long: float = Field(ge=0, le=360)
+    long: float = Field(ge=-180, le=180)
     lat: float = Field(ge=-90, le=90)
     # Form behaviour:
     model_config = {"extra": "forbid"}
@@ -121,8 +111,8 @@ class PostcodesContract(BaseModel):
     postcodes: list[PostcodeModel]
 
 
-# @app.get("/postcodes", response_model=PostcodesContract)
-@app.get("/postcodes")
+# @app.get("/postcodes")
+@app.get("/postcodes", response_model=PostcodesContract)
 def get_postcodes(skip: int = 0, limit: int = 100):
     """Get postcodes with pagination"""
     return {"postcodes": AUSTRALIAN_POSTCODES[skip : skip + limit]}
@@ -132,6 +122,9 @@ def get_postcodes(skip: int = 0, limit: int = 100):
 def get_postcode_localities(postcode: str):
     """Get all localities for a postcode"""
     return {"postcodes": [_ for _ in AUSTRALIAN_POSTCODES if _["postcode"] == postcode]}
+
+
+# Swagger
 
 
 @app.patch("/postcodes/id/{id}", response_model=PostcodeModel)
@@ -155,19 +148,10 @@ def patch_postcode(id: int, postcode: PostcodeModel):
 @app.get("/demo/request")
 def demo_request(request: Request):
     """Return the user agent from the request object"""
-    return JSONResponse(content={"User-Agent": request.headers["user-agent"]})
-
-
-@app.get("/demo/headers")
-def demo_headers(
-    user_agent: Annotated[str | None, Header()] = None,
-):
-    """Return the user agent by dependency injection"""
-    return JSONResponse(
-        content={
-            "User-Agent": user_agent,
-        }
-    )
+    return {
+        "User-Agent": request.headers.get("user-agent"),
+        "Last-Visit": request.cookies.get("last-visit"),
+    }
 
 
 class Paging:
@@ -181,9 +165,16 @@ def demo_paging(paging: Annotated[Paging, Depends(Paging)]):
     return {"skip": paging.skip, "limit": paging.limit}
 
 
-# ---------------------------------------------------------------------------
-# Applying dependency injection
-# ---------------------------------------------------------------------------
+@app.get("/demo/headers")
+def demo_headers(
+    user_agent: Annotated[str | None, Header()] = None,
+    last_visit: Annotated[str | None, Cookie()] = None,
+):
+    """Return the user agent by dependency injection"""
+    return {
+        "User-Agent": user_agent,
+        "Last-Visit": last_visit,
+    }
 
 
 @app.get("/postcodes/id/{id}")
