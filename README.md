@@ -70,6 +70,12 @@ See responses in @app.get('/')
 - <http://127.0.0.1:8000/postcodes?skip=5800&limit=100>
 - <http://127.0.0.1:8000/postcodes/0823/localities>
 
+### Contracts / Pydantic
+
+(Compare GET /postcodes with response_model=PostcodesContract)
+
+(Show types and models in Refspy)
+
 ### Swagger / Swagger-UI
 
 - <http://127.0.0.1:8000/docs>
@@ -92,12 +98,6 @@ cd ../map-app/
 ### Dependency Injection
 
 (Retrieve the right ID or first postcode; see other examples in main.py)
-
-### Contracts / Pydantic
-
-(Compare GET /postcodes with response_model=PostcodesContract)
-
-(Show types and models in Refspy)
 
 ### Async / Locust
 
