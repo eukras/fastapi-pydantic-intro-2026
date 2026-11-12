@@ -6,7 +6,7 @@ A modern API should be:
 
 - Self-documenting -- `Swagger`/`SwaggerUI`
 - Contract-based -- `Pydantic`
-- Fast -- async/caching
+- Fast -- `async`, caching
 - Observability/Instrumentation Metrics -- `OpenTelemetry`/`Prometheus`/`Grafana`
 - Deployable: ENV vars, container lifecycles
 
@@ -33,9 +33,9 @@ In this little intro, we'll look at the first three points.
 ## Basics
 
 ```bash
-uv venv .venv
+git clone https://github.com/eukras/fastapi-pydantic-intro-2026
+uv sync
 source .venv/bin/activate
-uv pip install fastapi[all]
 ```
 
 ## Data
@@ -51,8 +51,7 @@ v localities-au.csv  # <-- My editor is always mapped to `v`.
 Quick sanity check on the data...
 
 ```bash
-uv pip install polars plotly jupyter
-uv run --with jupyter jupyter lab
+jupyter lab
 ```
 
 Note: If you look at the VIC population, you'll see this is old data.
@@ -70,16 +69,6 @@ See responses in @app.get('/')
 
 - <http://127.0.0.1:8000/postcodes?skip=5800&limit=100>
 - <http://127.0.0.1:8000/postcodes/0823/localities>
-
-### Dependency Injection
-
-(Retrieve the right ID or first postcode; see other examples in main.py)
-
-### Contracts / Pydantic
-
-(Compare GET /postcodes with response_model=PostcodesModelList)
-
-(Show types and models in Refspy)
 
 ### Swagger / Swagger-UI
 
@@ -100,10 +89,19 @@ cd ../map-app/
 
 - <http://127.0.0.1:8081/> # <-- Must be 127.0.0.1 not localhost
 
+### Dependency Injection
+
+(Retrieve the right ID or first postcode; see other examples in main.py)
+
+### Contracts / Pydantic
+
+(Compare GET /postcodes with response_model=PostcodesContract)
+
+(Show types and models in Refspy)
+
 ### Async / Locust
 
 ```bash
-uv add locust
 v locustfile.py
 locust --tag=data
 locust --tag=sync
